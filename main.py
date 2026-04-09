@@ -2,24 +2,47 @@ import streamlit as st
 
 st.set_page_config(page_title="To-Do App", layout="centered")
 
-st.title("📱 To-Do List")
+# White background styling
+st.markdown(
+    """
+    <style>
+    .main {
+        background-color: #ffffff;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
-# Initialize session state
+st.title("📝 To-Do List")
+
+# Initialize tasks
 if "tasks" not in st.session_state:
     st.session_state.tasks = []
 
-# Add task input
-new_task = st.text_input("Add a new task")
+if "filter" not in st.session_state:
+    st.session_state.filter = "ALL"
 
-if st.button("➕ Add Task"):
+# Add task
+new_task = st.text_input("Enter new task...")
+
+if st.button("➕ ADD"):
     if new_task:
-        st.session_state.tasks.append({"task": new_task, "done": False})
+        st.session_state.tasks.append({
+            "task": new_task,
+            "done": False
+        })
 
 st.divider()
 
 # Display tasks
 for i, item in enumerate(st.session_state.tasks):
-    col1, col2, col3 = st.columns([1, 5, 1])
+    if st.session_state.filter == "ACTIVE" and item["done"]:
+        continue
+    if st.session_state.filter == "COMPLETED" and not item["done"]:
+        continue
+
+    col1, col2, col3, col4 = st.columns([1, 5, 1, 1])
 
     # Checkbox
     with col1:
@@ -32,13 +55,39 @@ for i, item in enumerate(st.session_state.tasks):
         else:
             st.write(item["task"])
 
-    # Delete button
+    # Edit button
     with col3:
+        if st.button("✏️", key=f"edit_{i}"):
+            new_val = st.text_input("Edit task", value=item["task"], key=f"editbox_{i}")
+            if new_val:
+                item["task"] = new_val
+
+    # Delete button
+    with col4:
         if st.button("❌", key=f"del_{i}"):
             st.session_state.tasks.pop(i)
             st.rerun()
 
-# Clear all button
 st.divider()
-if st.button("🗑 Clear All"):
-    st.session_state.tasks = []
+
+# Filters
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    if st.button("ALL"):
+        st.session_state.filter = "ALL"
+
+with col2:
+    if st.button("ACTIVE"):
+        st.session_state.filter = "ACTIVE"
+
+with col3:
+    if st.button("COMPLETED"):
+        st.session_state.filter = "COMPLETED"
+
+# Stats
+total = len(st.session_state.tasks)
+completed = sum(1 for t in st.session_state.tasks if t["done"])
+active = total - completed
+
+st.write(f"{completed}/{total} completed • {active} active")
