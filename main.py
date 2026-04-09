@@ -87,7 +87,6 @@ for i, item in enumerate(st.session_state.tasks):
             padding: 12px;
             font-size: 18px;
             {'text-decoration: line-through; color: gray;' if item['done'] else ''}
-        ">
             {item['task']}
         </div>
         """
