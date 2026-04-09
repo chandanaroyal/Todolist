@@ -2,44 +2,67 @@ import streamlit as st
 
 st.set_page_config(page_title="To-Do App", layout="centered")
 
-# --------- DARK STYLE ----------
-st.markdown("""
+# --------- MODE SWITCH ----------
+if "mode" not in st.session_state:
+    st.session_state.mode = "dark"
+
+toggle = st.toggle("🌙 Dark Mode", value=True)
+
+if toggle:
+    st.session_state.mode = "dark"
+else:
+    st.session_state.mode = "light"
+
+# --------- STYLES ----------
+if st.session_state.mode == "dark":
+    bg_color = "#0b1220"
+    card_color = "#1e1e1e"
+    text_color = "white"
+    border_color = "#2f5eff"
+    button_color = "#2f5eff"
+else:
+    bg_color = "#f4f4f4"
+    card_color = "#ffffff"
+    text_color = "black"
+    border_color = "#000000"
+    button_color = "#4CAF50"
+
+st.markdown(f"""
 <style>
-body {
-    background-color: #e6d3a3;
-}
-.main {
-    background-color: #1e1e1e;
+body {{
+    background-color: {bg_color};
+}}
+
+.main {{
+    background-color: {card_color};
     padding: 25px;
     border-radius: 15px;
-    border: 3px solid #2f5eff;
-}
+    border: 3px solid {border_color};
+}}
 
-h1, h2, h3, p {
+h1, h2, h3, p {{
+    color: {text_color};
+}}
+
+.stTextInput input {{
+    background-color: {"#2b2b2b" if st.session_state.mode=="dark" else "#ffffff"};
+    color: {text_color};
+    border-radius: 10px;
+}}
+
+.stButton>button {{
+    background-color: {button_color};
     color: white;
-}
-
-button {
-    border-radius: 8px !important;
-    font-weight: bold !important;
-}
-
-.stButton>button {
-    background-color: #2f5eff;
-    color: white;
-}
-
-.delete-btn {
-    color: red;
+    border-radius: 8px;
     font-weight: bold;
-}
+}}
 
-.task-box {
-    border: 1px solid #555;
+.task-box {{
+    border: 1px solid gray;
     padding: 10px;
     border-radius: 10px;
     margin-bottom: 8px;
-}
+}}
 </style>
 """, unsafe_allow_html=True)
 
@@ -51,15 +74,17 @@ if "tasks" not in st.session_state:
     st.session_state.tasks = []
 
 # --------- INPUT ----------
-col1, col2 = st.columns([4,1])
+col1, col2 = st.columns([5,1])
 
 with col1:
-    new_task = st.text_input("", placeholder="Enter task...")
+    new_task = st.text_input("", placeholder="Enter new task...", label_visibility="collapsed")
 
 with col2:
-    if st.button("Add"):
-        if new_task:
-            st.session_state.tasks.append({"task": new_task, "done": False})
+    st.markdown("<br>", unsafe_allow_html=True)
+    add_clicked = st.button("Add", use_container_width=True)
+
+if add_clicked and new_task:
+    st.session_state.tasks.append({"task": new_task, "done": False})
 
 st.markdown("<h3 style='text-align:center;'>Task List</h3>", unsafe_allow_html=True)
 
@@ -67,26 +92,22 @@ st.markdown("<h3 style='text-align:center;'>Task List</h3>", unsafe_allow_html=T
 for i, item in enumerate(st.session_state.tasks):
     col1, col2, col3, col4 = st.columns([1,5,1,1])
 
-    # Checkbox
     with col1:
         item["done"] = st.checkbox("", value=item["done"], key=f"check_{i}")
 
-    # Task text
     with col2:
         if item["done"]:
             st.markdown(f"<span style='color:gray; text-decoration: line-through;'>{item['task']}</span>", unsafe_allow_html=True)
         else:
             st.write(item["task"])
 
-    # Delete
     with col3:
-        if st.button("Delete", key=f"del_{i}"):
+        if st.button("❌", key=f"del_{i}"):
             st.session_state.tasks.pop(i)
             st.rerun()
 
-    # Edit
     with col4:
-        if st.button("Edit", key=f"edit_{i}"):
+        if st.button("✏️", key=f"edit_{i}"):
             new_val = st.text_input("Edit task", value=item["task"], key=f"editbox_{i}")
             if new_val:
                 item["task"] = new_val
@@ -94,15 +115,11 @@ for i, item in enumerate(st.session_state.tasks):
 # --------- STATS ----------
 completed = sum(1 for t in st.session_state.tasks if t["done"])
 total = len(st.session_state.tasks)
-remaining = total - completed
 
 st.markdown("---")
-st.markdown(
-    f"<p style='text-align:center;'>Completed: {completed} | Uncompleted: {remaining}</p>",
-    unsafe_allow_html=True
-)
+st.markdown(f"<p style='text-align:center;'>Completed: {completed} | Uncompleted: {total-completed}</p>", unsafe_allow_html=True)
 
-# --------- CLEAR ALL ----------
-if st.button("Clear All"):
+# --------- CLEAR ----------
+if st.button("🗑 Clear All"):
     st.session_state.tasks = []
     st.rerun()
