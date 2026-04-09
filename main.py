@@ -2,47 +2,70 @@ import streamlit as st
 
 st.set_page_config(page_title="To-Do App", layout="centered")
 
-# White background styling
-st.markdown(
-    """
-    <style>
-    .main {
-        background-color: #ffffff;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+# --------- CUSTOM STYLE (MATCH IMAGE) ----------
+st.markdown("""
+<style>
+body {
+    background-color: #f5f5f5;
+}
+.main {
+    background-color: #ffffff;
+    padding: 20px;
+    border: 2px solid black;
+}
 
-st.title("📝 To-Do List")
+button {
+    border: 2px solid black !important;
+    background-color: #e8e4d9 !important;
+    color: black !important;
+    font-weight: bold !important;
+}
 
-# Initialize tasks
+.task-box {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 5px;
+}
+
+.completed {
+    text-decoration: line-through;
+    color: gray;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# --------- TITLE ----------
+st.markdown("## 📝 To-Do List")
+
+# --------- SESSION ----------
 if "tasks" not in st.session_state:
     st.session_state.tasks = []
 
 if "filter" not in st.session_state:
     st.session_state.filter = "ALL"
 
-# Add task
-new_task = st.text_input("Enter new task...")
+# --------- INPUT ----------
+col1, col2 = st.columns([4,1])
 
-if st.button("➕ ADD"):
-    if new_task:
-        st.session_state.tasks.append({
-            "task": new_task,
-            "done": False
-        })
+with col1:
+    new_task = st.text_input("Enter new task...", label_visibility="collapsed")
 
-st.divider()
+with col2:
+    if st.button("+ ADD"):
+        if new_task:
+            st.session_state.tasks.append({"task": new_task, "done": False})
 
-# Display tasks
+st.markdown("---")
+
+# --------- TASK LIST ----------
 for i, item in enumerate(st.session_state.tasks):
+
     if st.session_state.filter == "ACTIVE" and item["done"]:
         continue
     if st.session_state.filter == "COMPLETED" and not item["done"]:
         continue
 
-    col1, col2, col3, col4 = st.columns([1, 5, 1, 1])
+    col1, col2, col3, col4 = st.columns([1,6,1,1])
 
     # Checkbox
     with col1:
@@ -51,26 +74,26 @@ for i, item in enumerate(st.session_state.tasks):
     # Task text
     with col2:
         if item["done"]:
-            st.markdown(f"~~{item['task']}~~")
+            st.markdown(f"<div class='completed'>{item['task']}</div>", unsafe_allow_html=True)
         else:
             st.write(item["task"])
 
-    # Edit button
+    # Edit
     with col3:
         if st.button("✏️", key=f"edit_{i}"):
             new_val = st.text_input("Edit task", value=item["task"], key=f"editbox_{i}")
             if new_val:
                 item["task"] = new_val
 
-    # Delete button
+    # Delete
     with col4:
         if st.button("❌", key=f"del_{i}"):
             st.session_state.tasks.pop(i)
             st.rerun()
 
-st.divider()
+st.markdown("---")
 
-# Filters
+# --------- FILTER BUTTONS ----------
 col1, col2, col3 = st.columns(3)
 
 with col1:
@@ -85,9 +108,9 @@ with col3:
     if st.button("COMPLETED"):
         st.session_state.filter = "COMPLETED"
 
-# Stats
+# --------- STATUS ----------
 total = len(st.session_state.tasks)
 completed = sum(1 for t in st.session_state.tasks if t["done"])
 active = total - completed
 
-st.write(f"{completed}/{total} completed • {active} active")
+st.markdown(f"**{completed}/{total} COMPLETED • {active} ACTIVE**")
