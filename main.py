@@ -72,7 +72,7 @@ st.markdown("<h3>Task List</h3>", unsafe_allow_html=True)
 # --------- TASK LIST (EDIT FIX + COLOR FIX) ----------
 for i, item in enumerate(st.session_state.tasks):
 
-    col1, col2, col3, col4 = st.columns([1,6,1,1])
+    col1, col2, col3, col4 = st.columns([1,6,2,2])
 
     # Checkbox
     with col1:
