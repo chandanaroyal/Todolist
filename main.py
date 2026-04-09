@@ -2,70 +2,70 @@ import streamlit as st
 
 st.set_page_config(page_title="To-Do App", layout="centered")
 
-# --------- CUSTOM STYLE (MATCH IMAGE) ----------
+# --------- DARK STYLE ----------
 st.markdown("""
 <style>
 body {
-    background-color: #f5f5f5;
+    background-color: #e6d3a3;
 }
 .main {
-    background-color: #ffffff;
-    padding: 20px;
-    border: 2px solid black;
+    background-color: #1e1e1e;
+    padding: 25px;
+    border-radius: 15px;
+    border: 3px solid #2f5eff;
+}
+
+h1, h2, h3, p {
+    color: white;
 }
 
 button {
-    border: 2px solid black !important;
-    background-color: #e8e4d9 !important;
-    color: black !important;
+    border-radius: 8px !important;
     font-weight: bold !important;
 }
 
-.task-box {
-    border: 1px solid #ccc;
-    padding: 10px;
-    margin-bottom: 5px;
+.stButton>button {
+    background-color: #2f5eff;
+    color: white;
 }
 
-.completed {
-    text-decoration: line-through;
-    color: gray;
+.delete-btn {
+    color: red;
+    font-weight: bold;
+}
+
+.task-box {
+    border: 1px solid #555;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 8px;
 }
 </style>
 """, unsafe_allow_html=True)
 
 # --------- TITLE ----------
-st.markdown("## 📝 To-Do List")
+st.markdown("<h1 style='text-align:center;'>To Do List</h1>", unsafe_allow_html=True)
 
 # --------- SESSION ----------
 if "tasks" not in st.session_state:
     st.session_state.tasks = []
 
-if "filter" not in st.session_state:
-    st.session_state.filter = "ALL"
-
 # --------- INPUT ----------
 col1, col2 = st.columns([4,1])
 
 with col1:
-    new_task = st.text_input("Enter new task...", label_visibility="collapsed")
+    new_task = st.text_input("", placeholder="Enter task...")
 
 with col2:
-    if st.button("+ ADD"):
+    if st.button("Add"):
         if new_task:
             st.session_state.tasks.append({"task": new_task, "done": False})
 
-st.markdown("---")
+st.markdown("<h3 style='text-align:center;'>Task List</h3>", unsafe_allow_html=True)
 
 # --------- TASK LIST ----------
 for i, item in enumerate(st.session_state.tasks):
-
-    if st.session_state.filter == "ACTIVE" and item["done"]:
-        continue
-    if st.session_state.filter == "COMPLETED" and not item["done"]:
-        continue
-
-    col1, col2, col3, col4 = st.columns([1,6,1,1])
+    col1, col2, col3, col4 = st.columns([1,5,1,1])
 
     # Checkbox
     with col1:
@@ -74,52 +74,35 @@ for i, item in enumerate(st.session_state.tasks):
     # Task text
     with col2:
         if item["done"]:
-            st.markdown(f"<div class='completed'>{item['task']}</div>", unsafe_allow_html=True)
+            st.markdown(f"<span style='color:gray; text-decoration: line-through;'>{item['task']}</span>", unsafe_allow_html=True)
         else:
             st.write(item["task"])
 
-    # Edit
+    # Delete
     with col3:
-        if st.button("✏️", key=f"edit_{i}"):
+        if st.button("Delete", key=f"del_{i}"):
+            st.session_state.tasks.pop(i)
+            st.rerun()
+
+    # Edit
+    with col4:
+        if st.button("Edit", key=f"edit_{i}"):
             new_val = st.text_input("Edit task", value=item["task"], key=f"editbox_{i}")
             if new_val:
                 item["task"] = new_val
 
-    # Delete
-    with col4:
-        if st.button("❌", key=f"del_{i}"):
-            st.session_state.tasks.pop(i)
-            st.rerun()
+# --------- STATS ----------
+completed = sum(1 for t in st.session_state.tasks if t["done"])
+total = len(st.session_state.tasks)
+remaining = total - completed
 
 st.markdown("---")
+st.markdown(
+    f"<p style='text-align:center;'>Completed: {completed} | Uncompleted: {remaining}</p>",
+    unsafe_allow_html=True
+)
 
-# --------- FILTER BUTTONS ----------
-col1, col2, col3 = st.columns(3)
-
-with col1:
-    if st.button("ALL"):
-        st.session_state.filter = "ALL"
-
-with col2:
-    if st.button("ACTIVE"):
-        st.session_state.filter = "ACTIVE"
-
-with col3:
-    if st.button("COMPLETED"):
-        st.session_state.filter = "COMPLETED"
-
-st.markdown("---")
-
-# --------- CLEAR ALL BUTTON ----------
-if st.button("🗑 CLEAR ALL"):
+# --------- CLEAR ALL ----------
+if st.button("Clear All"):
     st.session_state.tasks = []
     st.rerun()
-
-st.markdown("---")
-
-# --------- STATUS ----------
-total = len(st.session_state.tasks)
-completed = sum(1 for t in st.session_state.tasks if t["done"])
-active = total - completed
-
-st.markdown(f"**{completed}/{total} COMPLETED • {active} ACTIVE**")
