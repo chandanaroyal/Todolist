@@ -69,18 +69,29 @@ if add_clicked and new_task:
 
 st.markdown("<h3>Task List</h3>", unsafe_allow_html=True)
 
-# --------- TASK LIST ----------
+# --------- TASK LIST (UPDATED UI) ----------
 for i, item in enumerate(st.session_state.tasks):
-    col1, col2, col3, col4 = st.columns([1,5,1,1])
+
+    col1, col2, col3, col4 = st.columns([1,6,1,1])
 
     with col1:
         item["done"] = st.checkbox("", value=item["done"], key=f"check_{i}")
 
+    # 🔥 Task box (like search bar)
     with col2:
-        if item["done"]:
-            st.markdown(f"<span style='text-decoration: line-through; color: gray;'>{item['task']}</span>", unsafe_allow_html=True)
-        else:
-            st.write(item["task"])
+        task_style = f"""
+        <div style="
+            background-color: #ffffff;
+            border: 1px solid #ccc;
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 18px;
+            {'text-decoration: line-through; color: gray;' if item['done'] else ''}
+        ">
+            {item['task']}
+        </div>
+        """
+        st.markdown(task_style, unsafe_allow_html=True)
 
     with col3:
         if st.button("Edit", key=f"edit_{i}"):
@@ -92,7 +103,6 @@ for i, item in enumerate(st.session_state.tasks):
         if st.button("Delete", key=f"del_{i}"):
             st.session_state.tasks.pop(i)
             st.rerun()
-
 # --------- STATS ----------
 completed = sum(1 for t in st.session_state.tasks if t["done"])
 total = len(st.session_state.tasks)
