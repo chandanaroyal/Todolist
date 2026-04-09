@@ -98,19 +98,22 @@ for i, item in enumerate(st.session_state.tasks):
 
         else:
             # ✅ Black text always visible
-            style = f"""
-            <div style="
-                background-color: #ffffff;
-                border: 1px solid #ccc;
-                border-radius: 12px;
-                padding: 12px;
-                font-size: 18px;
-                color: black;
-                {'text-decoration: line-through;' if item['done'] else ''}
-                {item['task']}
-            </div>
-            """
-            st.markdown(style, unsafe_allow_html=True)
+           # Task display (FORCE BLACK TEXT)
+style = f"""
+<div style="
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 18px;
+    color: black !important;
+    font-weight: 500;
+    {'text-decoration: line-through;' if item['done'] else ''}
+">
+    {item['task']}
+</div>
+"""
+st.markdown(style, unsafe_allow_html=True)
 
     # Edit button
     with col3:
