@@ -108,6 +108,15 @@ with col3:
     if st.button("COMPLETED"):
         st.session_state.filter = "COMPLETED"
 
+st.markdown("---")
+
+# --------- CLEAR ALL BUTTON ----------
+if st.button("🗑 CLEAR ALL"):
+    st.session_state.tasks = []
+    st.rerun()
+
+st.markdown("---")
+
 # --------- STATUS ----------
 total = len(st.session_state.tasks)
 completed = sum(1 for t in st.session_state.tasks if t["done"])
