@@ -45,7 +45,7 @@ This app allows users to manage their daily tasks efficiently with a clean and m
 1. Clone the repository:
 
 ```
-git clone https://github.com/your-username/todo-app.git
+git clone https://github.com/chandanaroyal/Todolist.git
 ```
 
 2. Navigate to project folder:
