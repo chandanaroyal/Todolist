@@ -73,20 +73,21 @@ st.markdown("<h1 style='text-align:center;'>To Do List</h1>", unsafe_allow_html=
 if "tasks" not in st.session_state:
     st.session_state.tasks = []
 
-# --------- INPUT ----------
-col1, col2 = st.columns([5,1])
+# --------- INPUT (PERFECT ALIGNMENT) ----------
+col1, col2 = st.columns([6, 2], vertical_alignment="bottom")
 
 with col1:
-    new_task = st.text_input("", placeholder="Enter new task...", label_visibility="collapsed")
+    new_task = st.text_input(
+        "",
+        placeholder="Enter new task...",
+        label_visibility="collapsed"
+    )
 
 with col2:
-    st.markdown("<br>", unsafe_allow_html=True)
     add_clicked = st.button("Add", use_container_width=True)
 
 if add_clicked and new_task:
     st.session_state.tasks.append({"task": new_task, "done": False})
-
-st.markdown("<h3 style='text-align:center;'>Task List</h3>", unsafe_allow_html=True)
 
 # --------- TASK LIST ----------
 for i, item in enumerate(st.session_state.tasks):
