@@ -69,35 +69,56 @@ if add_clicked and new_task:
 
 st.markdown("<h3>Task List</h3>", unsafe_allow_html=True)
 
-# --------- TASK LIST (UPDATED UI) ----------
+# --------- TASK LIST (EDIT FIX + COLOR FIX) ----------
 for i, item in enumerate(st.session_state.tasks):
 
     col1, col2, col3, col4 = st.columns([1,6,1,1])
 
+    # Checkbox
     with col1:
         item["done"] = st.checkbox("", value=item["done"], key=f"check_{i}")
 
-    # 🔥 Task box (like search bar)
+    # Task display (BLACK even when done)
     with col2:
-        task_style = f"""
-        <div style="
-            background-color: #ffffff;
-            border: 1px solid #ccc;
-            border-radius: 12px;
-            padding: 12px;
-            font-size: 18px;
-            {'text-decoration: line-through; color: gray;' if item['done'] else ''}
-            {item['task']}
-        </div>
-        """
-        st.markdown(task_style, unsafe_allow_html=True)
+        if f"edit_mode_{i}" not in st.session_state:
+            st.session_state[f"edit_mode_{i}"] = False
 
+        # 🔥 If editing → show input + save button
+        if st.session_state[f"edit_mode_{i}"]:
+            new_val = st.text_input(
+                "",
+                value=item["task"],
+                key=f"editbox_{i}"
+            )
+
+            if st.button("Save", key=f"save_{i}"):
+                item["task"] = new_val
+                st.session_state[f"edit_mode_{i}"] = False
+                st.rerun()
+
+        else:
+            # ✅ Black text always visible
+            style = f"""
+            <div style="
+                background-color: #ffffff;
+                border: 1px solid #ccc;
+                border-radius: 12px;
+                padding: 12px;
+                font-size: 18px;
+                color: black;
+                {'text-decoration: line-through;' if item['done'] else ''}
+            ">
+                {item['task']}
+            </div>
+            """
+            st.markdown(style, unsafe_allow_html=True)
+
+    # Edit button
     with col3:
         if st.button("Edit", key=f"edit_{i}"):
-            new_val = st.text_input("Edit task", value=item["task"], key=f"editbox_{i}")
-            if new_val:
-                item["task"] = new_val
+            st.session_state[f"edit_mode_{i}"] = True
 
+    # Delete button
     with col4:
         if st.button("Delete", key=f"del_{i}"):
             st.session_state.tasks.pop(i)
